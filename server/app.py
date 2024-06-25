@@ -21,7 +21,31 @@ def index():
     return make_response(body, 200)
 
 # Add views here
+@app.route('/earthquakes/<int:id>')
+def eqs_by_id(id):
+    # query db for earthquake by id
+    eq = Earthquake.query.filter(Earthquake.id == id).first()
 
+    # check if earthquake exists
+    if eq is None:
+        return {"message": f"Earthquake {id} not found."}, 404
+
+    # return json response
+    return eq.to_dict(), 200
+
+
+@app.route('/earthquakes/magnitude/<float:magnitude>')
+def eqs_gte_magnitude(magnitude):
+    # query the db for all earthquakes with >= magnitude
+    eqs = Earthquake.query.filter(Earthquake.magnitude >= magnitude).all()
+    # result = []
+    # for eq in eqs:
+    #     result.append(eq.to_dict())
+    # serialze all earthquake objects (map them to dict)
+    return {
+        'count': len(eqs),
+        'quakes': [eq.to_dict() for eq in eqs]
+    }, 200
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
